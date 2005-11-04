@@ -52,7 +52,12 @@ import time as _time
 from icalendar.caselessdict import CaselessDict
 from icalendar.parser import Parameters
 
-
+DATE_PART = r'(\d+)D'
+TIME_PART = r'T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?'
+DATETIME_PART = '(?:%s)?(?:%s)?' % (DATE_PART, TIME_PART)
+WEEKS_PART = r'(\d+)W'
+DURATION_REGEX = re.compile(r'([-+]?)P(?:%s|%s)$'
+                            % (WEEKS_PART, DATETIME_PART))
 
 class vBinary:
     """
@@ -443,13 +448,7 @@ class vDuration:
         Parses the data format from ical text format.
         """
         try:
-            date_part = r'(\d+)D'
-            time_part = r'T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?'
-            datetime_part = '(?:%s)?(?:%s)?' % (date_part, time_part)
-            weeks_part = r'(\d+)W'
-            duration_rx = re.compile(r'([-+]?)P(?:%s|%s)$'
-                                     % (weeks_part, datetime_part))
-            match = duration_rx.match(ical)
+            match = DURATION_REGEX.match(ical)
             sign, weeks, days, hours, minutes, seconds = match.groups()
             if weeks:
                 value = timedelta(weeks=int(weeks))
