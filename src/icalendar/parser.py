@@ -393,7 +393,7 @@ class Contentline(str):
         "Unfolds the content lines in an iCalendar into long content lines"
         try:
             # a fold is carriage return followed by either a space or a tab
-            a_fold = re.compile('\r\n[ \t]{1}')
+            a_fold = re.compile('[\r]?\n[ \t]{1}')
             return Contentline(a_fold.sub('', st), strict=strict)
         except:
             raise ValueError, 'Expected StringType with content line'
@@ -445,7 +445,7 @@ class Contentlines(list):
             # a fold is carriage return followed by either a space or a tab
             a_fold = re.compile('\r\n[ \t]{1}')
             unfolded = a_fold.sub('', st)
-            lines = [Contentline(line) for line in unfolded.split('\r\n') if line]
+            lines = [Contentline(line) for line in unfolded.splitlines() if line]
             lines.append('') # we need a '\r\n' in the end of every content line
             return Contentlines(lines)
         except:
