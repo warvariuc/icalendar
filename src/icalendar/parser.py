@@ -33,6 +33,7 @@ def paramVal(val):
 NAME = re.compile('[\w-]+')
 UNSAFE_CHAR = re.compile('[\x00-\x08\x0a-\x1f\x7F",:;]')
 QUNSAFE_CHAR = re.compile('[\x00-\x08\x0a-\x1f\x7F"]')
+FOLD = re.compile('[\r]?\n[[\r]?\n]*[ \t]{1}')
 
 def validate_token(name):
     match = NAME.findall(name)
@@ -393,8 +394,7 @@ class Contentline(str):
         "Unfolds the content lines in an iCalendar into long content lines"
         try:
             # a fold is carriage return followed by either a space or a tab
-            a_fold = re.compile('[\r]?\n[ \t]{1}')
-            return Contentline(a_fold.sub('', st), strict=strict)
+            return Contentline(FOLD.sub('', st), strict=strict)
         except:
             raise ValueError, 'Expected StringType with content line'
     from_string = staticmethod(from_string)
@@ -443,8 +443,7 @@ class Contentlines(list):
         "Parses a string into content lines"
         try:
             # a fold is carriage return followed by either a space or a tab
-            a_fold = re.compile('\r\n[ \t]{1}')
-            unfolded = a_fold.sub('', st)
+            unfolded = FOLD.sub('', st)
             lines = [Contentline(line) for line in unfolded.splitlines() if line]
             lines.append('') # we need a '\r\n' in the end of every content line
             return Contentlines(lines)
