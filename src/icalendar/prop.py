@@ -58,6 +58,8 @@ DATETIME_PART = '(?:%s)?(?:%s)?' % (DATE_PART, TIME_PART)
 WEEKS_PART = r'(\d+)W'
 DURATION_REGEX = re.compile(r'([-+]?)P(?:%s|%s)$'
                             % (WEEKS_PART, DATETIME_PART))
+WEEKDAY_RULE = re.compile('(?P<signal>[+-]?)(?P<relative>[\d]?)'
+                          '(?P<weekday>[\w]{2})$')
 
 class vBinary:
     """
@@ -551,7 +553,7 @@ class vDDDTypes:
     datetime.timedelta(31)
 
     >>> vDDDTypes.from_ical('-P31D')
-    datetime.timedelta(31)
+    datetime.timedelta(-31)
 
     Bad input
     >>> vDDDTypes(42)
@@ -722,6 +724,9 @@ class vWeekday(str):
     >>> vWeekday.from_ical('mo')
     'MO'
 
+    >>> vWeekday.from_ical('+3mo')
+    '+3MO'
+
     >>> vWeekday.from_ical('Saturday')
     Traceback (most recent call last):
         ...
@@ -731,23 +736,30 @@ class vWeekday(str):
     >>> a.ical()
     '+MO'
 
+    >>> a = vWeekday('+3mo')
+    >>> a.ical()
+    '+3MO'
+
     >>> a = vWeekday('-tu')
     >>> a.ical()
     '-TU'
     """
 
-    week_days = CaselessDict({"SU":0, "MO":1, "TU":2, "WE":3, "TH":4, "FR":5, "SA":6})
+    week_days = CaselessDict({"SU":0, "MO":1, "TU":2, "WE":3,
+                              "TH":4, "FR":5, "SA":6})
 
     def __init__(self, *args, **kwargs):
         str.__init__(self, *args, **kwargs)
-        if len(self) == 2:
-            sign = '+'
-            weekday = self
-        else:
-            sign = self[0]
-            weekday = self[1:]
+        match = WEEKDAY_RULE.match(self)
+        if match is None:
+            raise ValueError, 'Expected weekday abbrevation, got: %s' % self
+        match = match.groupdict()
+        sign = match['signal']
+        weekday = match['weekday']
+        relative = match['relative']
         if not weekday in vWeekday.week_days or sign not in '+-':
             raise ValueError, 'Expected weekday abbrevation, got: %s' % self
+        self.relative = relative and int(relative) or None
         self.params = Parameters()
 
     def ical(self):
@@ -922,7 +934,6 @@ class vRecur(CaselessDict):
                 recur[key] = vRecur.parse_type(key, vals)
             return dict(recur)
         except:
-            raise
             raise ValueError, 'Error in recurrence rule: %s' % ical
     from_ical = staticmethod(from_ical)
 
