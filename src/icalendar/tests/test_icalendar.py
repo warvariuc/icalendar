@@ -9,6 +9,9 @@ def test_suite():
     suite.addTest(doctest.DocTestSuite(prop))
     suite.addTest(doctest.DocTestSuite(cal))
     doc_dir = '../../../doc'
-    for docfile in ['example.txt', 'groupscheduled.txt', 'small.txt']:
+    for docfile in ['example.txt',
+                    'groupscheduled.txt',
+                    'small.txt',
+                    'multiple.txt']:
         suite.addTest(doctest.DocFileSuite(os.path.join(doc_dir, docfile)))
     return suite
