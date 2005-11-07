@@ -333,39 +333,47 @@ class Component(CaselessDict):
         return properties
 
 
-    def from_string(st):
+    def from_string(st, multiple=False):
         """
         Populates the component recursively from a string
         """
         stack = [] # a stack of components
+        comps = []
         for line in Contentlines.from_string(st): # raw parsing
-            if line: # last content line is empty string
-                name, params, vals = line.parts()
-                uname = name.upper()
-                # check for start of component
-                if uname == 'BEGIN':
-                    # try and create one of the components defined in the spec,
-                    # otherwise get a general Components for robustness.
-                    component_name = vals.upper()
-                    component_class = component_factory.get(component_name, Component)
-                    component = component_class()
-                    if not getattr(component, 'name', ''): # for undefined components
-                        component.name = component_name
-                    stack.append(component)
-                # check for end of event
-                elif uname == 'END':
-                    # we are done adding properties to this component
-                    # so pop it from the stack and add it to the new top.
-                    component = stack.pop()
-                    if not stack: # we are at the end
-                        return component
-                    else:
-                        stack[-1].add_component(component)
-                # we are adding properties to the current top of the stack
+            if not line:
+                continue
+            name, params, vals = line.parts()
+            uname = name.upper()
+            # check for start of component
+            if uname == 'BEGIN':
+                # try and create one of the components defined in the spec,
+                # otherwise get a general Components for robustness.
+                component_name = vals.upper()
+                component_class = component_factory.get(component_name, Component)
+                component = component_class()
+                if not getattr(component, 'name', ''): # for undefined components
+                    component.name = component_name
+                stack.append(component)
+            # check for end of event
+            elif uname == 'END':
+                # we are done adding properties to this component
+                # so pop it from the stack and add it to the new top.
+                component = stack.pop()
+                if not stack: # we are at the end
+                    comps.append(component)
                 else:
-                    vals = types_factory['inline'](vals)
-                    vals.params = params
-                    stack[-1].add(name, vals, encode=0)
+                    stack[-1].add_component(component)
+            # we are adding properties to the current top of the stack
+            else:
+                vals = types_factory['inline'](vals)
+                vals.params = params
+                stack[-1].add(name, vals, encode=0)
+        if multiple:
+            return comps
+        if not len(comps) == 1:
+            raise ValueError('Found multiple components where '
+                             'only one is allowed')
+        return comps[0]
     from_string = staticmethod(from_string)
 
 
