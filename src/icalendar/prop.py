@@ -1434,4 +1434,3 @@ class TypesFactory(CaselessDict):
         type_class = self.for_property(name)
         decoded = type_class.from_ical(str(value))
         return decoded
-

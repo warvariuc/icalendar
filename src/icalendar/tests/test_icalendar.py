@@ -3,7 +3,7 @@ from icalendar import cal, caselessdict, parser, prop
 
 def test_suite():
     suite = unittest.TestSuite()
-    
+
     suite.addTest(doctest.DocTestSuite(caselessdict))
     suite.addTest(doctest.DocTestSuite(parser))
     suite.addTest(doctest.DocTestSuite(prop))
