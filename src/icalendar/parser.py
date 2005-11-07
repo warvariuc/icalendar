@@ -340,6 +340,22 @@ class Contentline(str):
     Traceback (most recent call last):
         ...
     ValueError: Content line could not be parsed into parts
+
+    >>> c = Contentline('key;param=pvalue:value', strict=False)
+    >>> c.parts()
+    ('key', Parameters({'PARAM': 'pvalue'}), 'value')
+
+    If strict is set to True, uppercase param values that are not
+    double-quoted, this is because the spec says non-quoted params are
+    case-insensitive.
+
+    >>> c = Contentline('key;param=pvalue:value', strict=True)
+    >>> c.parts()
+    ('key', Parameters({'PARAM': 'PVALUE'}), 'value')
+
+    >>> c = Contentline('key;param="pValue":value', strict=True)
+    >>> c.parts()
+    ('key', Parameters({'PARAM': 'pValue'}), 'value')
     """
 
     def __new__(cls, st, strict=False):
