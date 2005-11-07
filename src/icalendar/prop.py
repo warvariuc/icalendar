@@ -86,7 +86,7 @@ class vBinary:
         self.params = Parameters(encoding='BASE64', value="BINARY")
 
     def __repr__(self):
-        return "vCalAddress(%s)" % str.__repr__(self.obj)
+        return "vBinary(%s)" % str.__repr__(self.obj)
 
     def ical(self):
         return self.obj.encode('base-64')[:-1]
@@ -550,6 +550,9 @@ class vDDDTypes:
     >>> vDDDTypes.from_ical('P31D')
     datetime.timedelta(31)
 
+    >>> vDDDTypes.from_ical('-P31D')
+    datetime.timedelta(31)
+
     Bad input
     >>> vDDDTypes(42)
     Traceback (most recent call last):
@@ -580,7 +583,8 @@ class vDDDTypes:
 
     def from_ical(ical):
         "Parses the data format from ical text format"
-        if ical[0].upper() == 'P':
+        u = ical.upper()
+        if u.startswith('-P') or u.startswith('P'):
             return vDuration.from_ical(ical)
         try:
             return vDatetime.from_ical(ical)
@@ -918,6 +922,7 @@ class vRecur(CaselessDict):
                 recur[key] = vRecur.parse_type(key, vals)
             return dict(recur)
         except:
+            raise
             raise ValueError, 'Error in recurrence rule: %s' % ical
     from_ical = staticmethod(from_ical)
 

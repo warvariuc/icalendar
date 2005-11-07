@@ -365,7 +365,8 @@ class Component(CaselessDict):
                     stack[-1].add_component(component)
             # we are adding properties to the current top of the stack
             else:
-                vals = types_factory['inline'](vals)
+                factory = types_factory.for_property(name)
+                vals = factory(factory.from_ical(vals))
                 vals.params = params
                 stack[-1].add(name, vals, encode=0)
         if multiple:
