@@ -77,7 +77,11 @@ import unittest
 import traceback
 import linecache
 import pdb
-from sets import Set
+try:
+    from sets import Set
+except ImportError:
+    # This is Python 3.
+    Set = set
 
 __metaclass__ = type
 

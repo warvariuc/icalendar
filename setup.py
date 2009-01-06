@@ -5,7 +5,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = file('version.txt').read().strip()
+version = open('version.txt').read().strip()
 
 setup(name='icalendar',
       package_dir={'': 'src'},

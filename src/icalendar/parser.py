@@ -9,23 +9,28 @@ It is stupid in the sense that it treats the content purely as strings. No type
 conversion is attempted.
 
 Copyright, 2005: Max M <maxm@mxm.dk>
-License: GPL (Just contact med if and why you would like it changed)
+License: GPL (Just contact me if and why you would like it changed)
 """
 
 # from python
-from types import TupleType, ListType
-SequenceTypes = [TupleType, ListType]
 import re
 # from this package
 from icalendar.caselessdict import CaselessDict
 
+# Python 2.3 support:
+if "sorted" not in globals():
+    def sorted(iterable):
+        # First make sure it's a list, then sort it.
+        result = [x for x in iterable]
+        result.sort()
+        return result
 
 #################################################################
 # Property parameter stuff
 
 def paramVal(val):
     "Returns a parameter value"
-    if type(val) in SequenceTypes:
+    if isinstance(val, (list, tuple)):
         return q_join(val)
     return dQuote(val)
 
@@ -39,14 +44,14 @@ def validate_token(name):
     match = NAME.findall(name)
     if len(match) == 1 and name == match[0]:
         return
-    raise ValueError, name
+    raise ValueError(name)
 
 def validate_param_value(value, quoted=True):
     validator = UNSAFE_CHAR
     if quoted:
         validator = QUNSAFE_CHAR
     if validator.findall(value):
-        raise ValueError, value
+        raise ValueError(value)
 
 QUOTABLE = re.compile('[,;:].')
 def dQuote(val):
@@ -195,8 +200,7 @@ class Parameters(CaselessDict):
 
     def __str__(self):
         result = []
-        items = self.items()
-        items.sort() # To make doctests work
+        items = sorted(self.items())
         for key, value in items:
             value = paramVal(value)
             result.append('%s=%s' % (key.upper(), value))
@@ -235,7 +239,7 @@ class Parameters(CaselessDict):
                         result[key] = vals
             return result
         except:
-            raise ValueError, 'Not a valid parameter string'
+            raise ValueError('Not a valid parameter string')
     from_string = staticmethod(from_string)
 
 
@@ -402,16 +406,16 @@ class Contentline(str):
                     inquotes = not inquotes
             name = self[:name_split]
             if not name:
-                raise ValueError, 'Key name is required'
+                raise ValueError('Key name is required')
             validate_token(name)
             if name_split+1 == value_split:
-                raise ValueError, 'Invalid content line'
+                raise ValueError('Invalid content line')
             params = Parameters.from_string(self[name_split+1:value_split],
                                             strict=self.strict)
             values = self[value_split+1:]
             return (name, params, values)
         except:
-            raise ValueError, 'Content line could not be parsed into parts'
+            raise ValueError('Content line could not be parsed into parts')
 
     def from_string(st, strict=False):
         "Unfolds the content lines in an iCalendar into long content lines"
@@ -419,7 +423,7 @@ class Contentline(str):
             # a fold is carriage return followed by either a space or a tab
             return Contentline(FOLD.sub('', st), strict=strict)
         except:
-            raise ValueError, 'Expected StringType with content line'
+            raise ValueError('Expected StringType with content line')
     from_string = staticmethod(from_string)
 
     def __str__(self):
@@ -491,7 +495,7 @@ class Contentlines(list):
             lines.append('') # we need a '\r\n' in the end of every content line
             return Contentlines(lines)
         except:
-            raise ValueError, 'Expected StringType with content lines'
+            raise ValueError('Expected StringType with content lines')
     from_string = staticmethod(from_string)
 
 

@@ -1,5 +1,13 @@
 # -*- coding: latin-1 -*-
 
+# Python 2.3 support:
+if "sorted" not in globals():
+    def sorted(iterable):
+        # First make sure it's a list, then sort it.
+        result = [x for x in iterable]
+        result.sort()
+        return result
+
 class CaselessDict(dict):
     """
     A dictionary that isn't case sensitive, and only use string as keys.
@@ -34,8 +42,7 @@ class CaselessDict(dict):
     >>> ncd.update({'key5':'val5', 'KEY6':'val6', 'KEY5':'val7'})
     >>> ncd['key6']
     'val6'
-    >>> keys = ncd.keys()
-    >>> keys.sort()
+    >>> keys = sorted(ncd.keys())
     >>> keys
     ['KEY1', 'KEY2', 'KEY3', 'KEY5', 'KEY6']
     """
@@ -74,7 +81,8 @@ class CaselessDict(dict):
         return dict.popitem(self)
 
     def has_key(self, key):
-        return dict.has_key(self, key.upper())
+        # In 3.0 has_key goes away. It's the same as __contains__ anyway.
+        return dict.__contains__(self, key.upper())
 
     def update(self, indict):
         """

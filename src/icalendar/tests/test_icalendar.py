@@ -1,4 +1,11 @@
-import unittest, doctest, os
+try:
+    from doctest import DocFileSuite # This fails in 2.3
+    import doctest
+except ImportError:
+    # Python 2.3
+    import doctest23 as doctest
+
+import unittest, os
 from icalendar import cal, caselessdict, parser, prop
 
 def test_suite():
@@ -13,4 +20,9 @@ def test_suite():
                     'small.txt', 'multiple.txt', 'recurrence.txt']:
         suite.addTest(doctest.DocFileSuite(os.path.join(doc_dir, docfile),
                                            optionflags=doctest.ELLIPSIS),)
-    return suite
+        return suite
+
+if __name__ == "__main__":
+    suite = test_suite()
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

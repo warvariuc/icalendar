@@ -10,8 +10,6 @@ These are the defined components.
 """
 
 # from python
-from types import ListType, TupleType
-SequenceTypes = (ListType, TupleType)
 import re
 
 # from this package
@@ -20,7 +18,14 @@ from icalendar.parser import Contentlines, Contentline, Parameters
 from icalendar.parser import q_split, q_join
 from icalendar.prop import TypesFactory, vText
 
-
+# Python 2.3 support:
+if "sorted" not in globals():
+    def sorted(iterable):
+        # First make sure it's a list, then sort it.
+        result = [x for x in iterable]
+        result.sort()
+        return result
+    
 ######################################
 # The component factory
 
@@ -213,7 +218,7 @@ class Component(CaselessDict):
 
 
     def set(self, name, value, encode=1):
-        if type(value) == ListType:
+        if isinstance(value, list):
             self[name] = [self._encode(name, v, encode) for v in value]
         else:
             self[name] = self._encode(name, value, encode)
@@ -224,7 +229,7 @@ class Component(CaselessDict):
         if name in self:
             oldval = self[name]
             value = self._encode(name, value, encode)
-            if type(oldval) == ListType:
+            if isinstance(oldval, list):
                 oldval.append(value)
             else:
                 self.set(name, [oldval, value], encode=0)
@@ -242,12 +247,12 @@ class Component(CaselessDict):
         "Returns decoded value of property"
         if name in self:
             value = self[name]
-            if type(value) == ListType:
+            if isinstance(value, list):
                 return [self._decode(name, v) for v in value]
             return self._decode(name, value)
         else:
             if default is _marker:
-                raise KeyError, name
+                raise KeyError(name)
             else:
                 return default
 
@@ -314,12 +319,12 @@ class Component(CaselessDict):
         [(name, value), ...]
         """
         vText = types_factory['text']
+        import pdb;pdb.set_trace()
         properties = [('BEGIN', vText(self.name).ical())]
-        property_names = self.keys()
-        property_names.sort()
+        property_names = sorted(self.keys())
         for name in property_names:
             values = self[name]
-            if type(values) == ListType:
+            if isinstance(values, list):
                 # normally one property is one line
                 for value in values:
                     properties.append((name, value))
@@ -397,6 +402,7 @@ class Component(CaselessDict):
 
 
     def as_string(self):
+        import pdb;pdb.set_trace()
         return str(self.content_lines())
 
 

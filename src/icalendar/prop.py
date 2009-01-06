@@ -43,11 +43,15 @@ them directly.
 
 # from python >= 2.3
 from datetime import datetime, timedelta, time, date, tzinfo
-from types import IntType, StringType, UnicodeType, TupleType, ListType
-SequenceTypes = [TupleType, ListType]
 import re
 import time as _time
 import binascii
+
+try:
+    foo = unicode
+except NameError:
+    # Unicode is not defined, hence this is Python 3.
+    unicode = str
 
 # from this package
 from icalendar.caselessdict import CaselessDict
@@ -107,7 +111,7 @@ class vBinary:
         try:
             return ical.decode('base-64')
         except:
-            raise ValueError, 'Not valid base 64 encoding.'
+            raise ValueError('Not valid base 64 encoding.')
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -134,7 +138,7 @@ class vBoolean(int):
     """
 
     def __init__(self, *args, **kwargs):
-        int.__init__(self, *args, **kwargs)
+        int.__init__(self)
         self.params = Parameters()
 
     def ical(self):
@@ -149,7 +153,7 @@ class vBoolean(int):
         try:
             return vBoolean.bool_map[ical]
         except:
-            raise ValueError, "Expected 'TRUE' or 'FALSE'. Got %s" % ical
+            raise ValueError("Expected 'TRUE' or 'FALSE'. Got %s" % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -173,11 +177,11 @@ class vCalAddress(str):
     """
 
     def __init__(self, *args, **kwargs):
-        str.__init__(self, *args, **kwargs)
+        str.__init__(self)
         self.params = Parameters()
 
     def __repr__(self):
-        return u"vCalAddress(%s)" % str.__repr__(self)
+        return "vCalAddress(%s)" % str.__repr__(self)
 
     def ical(self):
         return str(self)
@@ -187,7 +191,7 @@ class vCalAddress(str):
         try:
             return str(ical)
         except:
-            raise ValueError, 'Expected vCalAddress, got: %s' % ical
+            raise ValueError('Expected vCalAddress, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -329,9 +333,9 @@ class vDatetime:
                 timetuple += [0, UTC]
                 return datetime(*timetuple)
             else:
-                raise ValueError, ical
+                raise ValueError(ical)
         except:
-            raise ValueError, 'Wrong datetime format: %s' % ical
+            raise ValueError('Wrong datetime format: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -374,7 +378,7 @@ class vDate:
                 )))
             return date(*timetuple)
         except:
-            raise ValueError, 'Wrong date format %s' % ical
+            raise ValueError('Wrong date format %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -499,7 +503,7 @@ class vFloat(float):
     """
 
     def __init__(self, *args, **kwargs):
-        float.__init__(self, *args, **kwargs)
+        float.__init__(self)
         self.params = Parameters()
 
     def ical(self):
@@ -510,7 +514,7 @@ class vFloat(float):
         try:
             return float(ical)
         except:
-            raise ValueError, 'Expected float value, got: %s' % ical
+            raise ValueError('Expected float value, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
 
@@ -530,7 +534,7 @@ class vInt(int):
     """
 
     def __init__(self, *args, **kwargs):
-        int.__init__(self, *args, **kwargs)
+        int.__init__(self)
         self.params = Parameters()
 
     def ical(self):
@@ -541,7 +545,7 @@ class vInt(int):
         try:
             return int(ical)
         except:
-            raise ValueError, 'Expected int, got: %s' % ical
+            raise ValueError('Expected int, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
 
@@ -782,7 +786,7 @@ class vPeriod:
             end_or_duration = vDDDTypes.from_ical(end_or_duration)
             return (start, end_or_duration)
         except:
-            raise ValueError, 'Expected period format, got: %s' % ical
+            raise ValueError('Expected period format, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -835,16 +839,16 @@ class vWeekday(str):
                               "TH":4, "FR":5, "SA":6})
 
     def __init__(self, *args, **kwargs):
-        str.__init__(self, *args, **kwargs)
+        str.__init__(self)
         match = WEEKDAY_RULE.match(self)
         if match is None:
-            raise ValueError, 'Expected weekday abbrevation, got: %s' % self
+            raise ValueError('Expected weekday abbrevation, got: %s' % self)
         match = match.groupdict()
         sign = match['signal']
         weekday = match['weekday']
         relative = match['relative']
         if not weekday in vWeekday.week_days or sign not in '+-':
-            raise ValueError, 'Expected weekday abbrevation, got: %s' % self
+            raise ValueError('Expected weekday abbrevation, got: %s' % self)
         self.relative = relative and int(relative) or None
         self.params = Parameters()
 
@@ -856,7 +860,7 @@ class vWeekday(str):
         try:
             return vWeekday(ical.upper())
         except:
-            raise ValueError, 'Expected weekday abbrevation, got: %s' % ical
+            raise ValueError('Expected weekday abbrevation, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -888,9 +892,9 @@ class vFrequency(str):
     })
 
     def __init__(self, *args, **kwargs):
-        str.__init__(self, *args, **kwargs)
+        str.__init__(self)
         if not self in vFrequency.frequencies:
-            raise ValueError, 'Expected frequency, got: %s' % self
+            raise ValueError('Expected frequency, got: %s' % self)
         self.params = Parameters()
 
     def ical(self):
@@ -901,7 +905,7 @@ class vFrequency(str):
         try:
             return vFrequency(ical.upper())
         except:
-            raise ValueError, 'Expected weekday abbrevation, got: %s' % ical
+            raise ValueError('Expected weekday abbrevation, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -999,7 +1003,7 @@ class vRecur(CaselessDict):
         result = []
         for key, vals in self.items():
             typ = self.types[key]
-            if not type(vals) in SequenceTypes:
+            if not isinstance(vals, (list, tuple)):
                 vals = [vals]
             vals = ','.join([typ(val).ical() for val in vals])
             result.append('%s=%s' % (key, vals))
@@ -1020,7 +1024,7 @@ class vRecur(CaselessDict):
                 recur[key] = vRecur.parse_type(key, vals)
             return dict(recur)
         except:
-            raise ValueError, 'Error in recurrence rule: %s' % ical
+            raise ValueError('Error in recurrence rule: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -1041,7 +1045,7 @@ class vText(unicode):
     'Text \\\\; with escaped\\\\, chars'
 
     Escaped newlines
-    >>> vText('Text with escaped\N chars').ical()
+    >>> vText('Text with escaped\\N chars').ical()
     'Text with escaped\\\\n chars'
 
     If you pass a unicode object, it will be utf-8 encoded. As this is the
@@ -1060,7 +1064,7 @@ class vText(unicode):
     >>> vText.from_ical('Text \\; with escaped\\, chars')
     u'Text ; with escaped, chars'
 
-    >>> print vText.from_ical('A string with\\; some\\\\ characters in\\Nit')
+    >>> print(vText.from_ical('A string with\\; some\\\\ characters in\\Nit'))
     A string with; some\\ characters in
     it
     """
@@ -1068,14 +1072,14 @@ class vText(unicode):
     encoding = 'utf-8'
 
     def __init__(self, *args, **kwargs):
-        unicode.__init__(self, *args, **kwargs)
+        unicode.__init__(self)
         self.params = Parameters()
 
     def escape(self):
         """
         Format value according to iCalendar TEXT escaping rules.
         """
-        return (self.replace('\N', '\n')
+        return (self.replace('\\N', '\n')
                     .replace('\\', '\\\\')
                     .replace(';', r'\;')
                     .replace(',', r'\,')
@@ -1084,7 +1088,7 @@ class vText(unicode):
                 )
 
     def __repr__(self):
-        return u"vText(%s)" % unicode.__repr__(self)
+        return "vText(%s)" % unicode.__repr__(self)
 
     def ical(self):
         return self.escape().encode(self.encoding)
@@ -1100,7 +1104,7 @@ class vText(unicode):
                         .replace('\\\\', '\\'))
             return ical.decode(vText.encoding)
         except:
-            raise ValueError, 'Expected ical text, got: %s' % ical
+            raise ValueError('Expected ical text, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -1127,7 +1131,7 @@ class vTime(time):
     """
 
     def __init__(self, *args, **kwargs):
-        time.__init__(self, *args, **kwargs)
+        time.__init__(self)
         self.params = Parameters()
 
     def ical(self):
@@ -1139,7 +1143,7 @@ class vTime(time):
             timetuple = map(int, (ical[:2],ical[2:4],ical[4:6]))
             return time(*timetuple)
         except:
-            raise ValueError, 'Expected time, got: %s' % ical
+            raise ValueError('Expected time, got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -1158,7 +1162,7 @@ class vUri(str):
     """
 
     def __init__(self, *args, **kwargs):
-        str.__init__(self, *args, **kwargs)
+        str.__init__(self)
         self.params = Parameters()
 
     def ical(self):
@@ -1169,7 +1173,7 @@ class vUri(str):
         try:
             return str(ical)
         except:
-            raise ValueError, 'Expected , got: %s' % ical
+            raise ValueError('Expected , got: %s' % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -1218,7 +1222,7 @@ class vGeo:
             latitude, longitude = ical.split(';')
             return (float(latitude), float(longitude))
         except:
-            raise ValueError, "Expected 'float;float' , got: %s" % ical
+            raise ValueError("Expected 'float;float' , got: %s" % ical)
     from_ical = staticmethod(from_ical)
 
     def __str__(self):
@@ -1309,9 +1313,9 @@ class vUTCOffset:
             sign, hours, minutes = (ical[-5:-4], int(ical[-4:-2]), int(ical[-2:]))
             offset = timedelta(hours=hours, minutes=minutes)
         except:
-            raise ValueError, 'Expected utc offset, got: %s' % ical
+            raise ValueError('Expected utc offset, got: %s' % ical)
         if offset >= timedelta(hours=24):
-            raise ValueError, 'Offset must be less than 24 hours, was %s' % ical
+            raise ValueError('Offset must be less than 24 hours, was %s' % ical)
         if sign == '-':
             return -offset
         return offset
