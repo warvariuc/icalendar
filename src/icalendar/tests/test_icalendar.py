@@ -2,7 +2,7 @@
 from . import unittest
 import doctest
 import os
-from icalendar import (
+from .. import (
     cal,
     caselessdict,
     parser,
@@ -15,7 +15,7 @@ OPTIONFLAGS = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
 class IcalendarTestCase (unittest.TestCase):
 
     def test_long_lines(self):
-        from icalendar.parser import Contentlines, Contentline
+        from ..parser import Contentlines, Contentline
         c = Contentlines([Contentline('BEGIN:VEVENT\r\n')])
         c.append(Contentline(''.join('123456789 ' * 10) + '\r\n'))
         self.assertEqual(
@@ -39,8 +39,8 @@ class IcalendarTestCase (unittest.TestCase):
         )
 
     def test_contentline_class(self):
-        from icalendar.parser import Contentline, Parameters
-        from icalendar.prop import vText
+        from ..parser import Contentline, Parameters
+        from ..prop import vText
 
         self.assertEqual(
             Contentline('Si meliora dies, ut vina, poemata reddit').to_ical(),
@@ -202,7 +202,7 @@ class IcalendarTestCase (unittest.TestCase):
         )
 
     def test_fold_line(self):
-        from icalendar.parser import foldline
+        from ..parser import foldline
 
         self.assertEqual(foldline('foo'), 'foo')
         self.assertEqual(
@@ -227,18 +227,18 @@ class IcalendarTestCase (unittest.TestCase):
         )
 
     def test_value_double_quoting(self):
-        from icalendar.parser import dquote
+        from ..parser import dquote
         self.assertEqual(dquote('Max'), 'Max')
         self.assertEqual(dquote('Rasmussen, Max'), '"Rasmussen, Max"')
         self.assertEqual(dquote('name:value'), '"name:value"')
 
     def test_q_split(self):
-        from icalendar.parser import q_split
+        from ..parser import q_split
         self.assertEqual(q_split('Max,Moller,"Rasmussen, Max"'),
                          ['Max', 'Moller', '"Rasmussen, Max"'])
 
     def test_q_join(self):
-        from icalendar.parser import q_join
+        from ..parser import q_join
         self.assertEqual(q_join(['Max', 'Moller', 'Rasmussen, Max']),
                          'Max,Moller,"Rasmussen, Max"')
 

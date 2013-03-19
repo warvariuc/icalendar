@@ -325,6 +325,7 @@ class TestProp(unittest.TestCase):
         self.assertEqual(t.to_ical(), 'Text \\; with escaped\\, chars')
 
         # Escaped newlines
+        import ipdb; from pprint import pprint; ipdb.set_trace()
         self.assertEqual(vText('Text with escaped\N chars').to_ical(),
                          'Text with escaped\\n chars')
 

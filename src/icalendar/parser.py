@@ -7,7 +7,9 @@ It is stupid in the sense that it treats the content purely as strings. No type
 conversion is attempted.
 """
 from __future__ import absolute_import
+
 import re
+
 from .caselessdict import CaselessDict
 from .parser_tools import (
     DEFAULT_ENCODING,
@@ -28,6 +30,22 @@ def escape_char(text):
                .replace(',', r'\,')\
                .replace('\r\n', r'\n')\
                .replace('\n', r'\n')
+
+
+MAP = (('\N', r'\n'),
+       ('\\', r'\\'),
+       (';', r'\;'),
+       (',', r'\,'),
+       ('\r\n', r'\n'),
+       ('\n', r'\n'))
+pattern = "(%s)" % "|".join(re.escape(item[0]) for item in MAP)
+MAP_DICT = dict(MAP)
+
+def escape_char_2(text, pattern=pattern, MAP_DICT=MAP_DICT):
+    """Format value according to iCalendar TEXT escaping rules.
+    """
+    assert isinstance(text, basestring)
+    return re.sub(pattern, lambda m: MAP_DICT[m.group()], text)
 
 
 def unescape_char(text):
